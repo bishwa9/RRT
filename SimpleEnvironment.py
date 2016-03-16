@@ -23,6 +23,14 @@ class SimpleEnvironment(object):
     def SetGoalParameters(self, goal_config, p = 0.2):
         self.goal_config = goal_config
         self.p = p
+
+    def collision_pt(self, pt):
+        # ensure robot at pt is not colliding with table
+        table = self.robot.GetEnv().GetKinBody('conference_table')
+        trans = numpy.array([[1, 0, 0, pt[0]], [0, 1, 0, pt[1]], [0, 0, 1, 0], [0, 0, 0, 1]])
+        with self.robot.GetEnv():
+            self.robot.SetTransform(trans)
+        return self.robot.GetEnv().CheckCollision(self.robot,table)
         
     def GenerateRandomConfiguration(self):
         config = [0] * 2;
@@ -34,11 +42,9 @@ class SimpleEnvironment(object):
             return self.goal_config
         while True:
             # generate two random points [0,1]
-            config[0] = numpy.random.uniform(lower_limits[0], upper_limits[0], 1)
-            config[1] = numpy.random.uniform(lower_limits[1], upper_limits[1], 1)
-            # ensure it isn't within the table
-            table_obj = self.robot.GetEnv().GetKinBody('conference_table')
-            if( !self.robot.GetEnv().CheckCollision(self.robot,table) ):
+            config[0] = numpy.random.uniform(lower_limits[0], upper_limits[0], 1)[0]
+            config[1] = numpy.random.uniform(lower_limits[1], upper_limits[1], 1)[0]
+            if self.collision_pt(config) == False:
                 break;
         return numpy.array(config)
 
@@ -54,27 +60,25 @@ class SimpleEnvironment(object):
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a target configuration
         #
-
         # walk with a quantized distance from start_config to end_config
         diff = end_config - start_config
         angle = numpy.arctan2(diff[1], diff[0]) # radians
-
-        dir_ = numpy.sign(diff)
-        if( set(dir_) == set( [0., 0.] ) ):
-            return 'None' # start = goal
+        # dir_ = numpy.sign(diff)
+        # if( set(dir_) == set( [0., 0.] ) ):
+        #     return None # start = goal
 
         uniform_dist = 0.1
         total_dist = self.ComputeDistance( start_config, end_config )
 
-        pts_ = numpy.linspace(0, total_dist, num=50) # points expressed in local coordinate frame
+        pts_ = numpy.linspace(0, total_dist, num=10) # points expressed in local coordinate frame
         xy_ = numpy.zeros((numpy.shape(pts_)[0], 2))
         num_ = 0
         for point in pts_:
-            xy = [start_config[0] + point * numpy.cos(angle), start_config[1] + point * numpy.sin(angle)]
+            xy = numpy.add(start_config, numpy.array([point * numpy.cos(angle), point * numpy.sin(angle)]))
             xy_[num_,:] = xy
             num_ += 1
             if( self.collision_pt( xy ) ):
-                return 'None'
+                return None
         return xy_;
 
     def ShortenPath(self, path, timeout=5.0):
