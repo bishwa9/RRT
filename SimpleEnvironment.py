@@ -23,8 +23,6 @@ class SimpleEnvironment(object):
     def SetGoalParameters(self, goal_config, p = 0.2):
         self.goal_config = goal_config
         self.p = p
-
-    def collision_pt(self, )
         
     def GenerateRandomConfiguration(self):
         config = [0] * 2;
@@ -52,7 +50,6 @@ class SimpleEnvironment(object):
         return numpy.sqrt((start_config[0] - end_config[0])**2 + (start_config[1] - end_config[1])**2)
 
     def Extend(self, start_config, end_config):
-        
         #
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a target configuration
@@ -69,15 +66,13 @@ class SimpleEnvironment(object):
         uniform_dist = 0.1
         total_dist = self.ComputeDistance( start_config, end_config )
 
-        pts_start = numpy.linspace(0, total_dist, num=50) # points expressed in 
-
-        while pt_num < numpy.shape(quantized_path)[1]: # traverse entire path
-            # check if the point is in collision
-            pt_ = [quantized_path[0, x_], quantized_path[1, y_]]
-            trans = np.array([[1, 0, 0, dist], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-            with self.env:
-                self.robot.SetTransform(np.dot(self.robot.GetTransform(), trans))
-        pass
+        pts_ = numpy.linspace(0, total_dist, num=50) # points expressed in local coordinate frame
+        num_ = 0
+        for point in pts_:
+            xy = [point * numpy.cos(angle), point * numpy.sin(angle)]
+            if( self.collision_pt( xy ) ):
+                return 'None'
+        return end_config;
 
     def ShortenPath(self, path, timeout=5.0):
         
