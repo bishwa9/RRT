@@ -1,4 +1,5 @@
 import numpy
+import scipy.spatial
 
 class HerbEnvironment(object):
     
@@ -46,7 +47,7 @@ class HerbEnvironment(object):
         # TODO: Implement a function which computes the distance between
         # two configurations
         #
-        pass
+        return scipy.spatial.distance.euclidean(start_config, end_config)
 
 
     def Extend(self, start_config, end_config):
@@ -55,7 +56,15 @@ class HerbEnvironment(object):
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a goal configuration
         #
-        pass
+        d_ = numpy.linspace(0, 1, num=10)
+        xy_ = numpy.zeros((numpy.shape(d)[0], 2))
+        for d in d_:
+            xy = numpy.subtract( (1-d)*start_config, d*end_config )
+            xy_[num_,:] = xy
+            num_ += 1
+            if( self.collision_pt( xy ) ):
+                return None
+        return xy_;
         
     def ShortenPath(self, path, timeout=5.0):
         
