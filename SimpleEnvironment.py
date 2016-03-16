@@ -75,7 +75,7 @@ class SimpleEnvironment(object):
             num_ += 1
             if( self.collision_pt( xy ) ):
                 return 'None'
-        return end_config;
+        return xy_;
 
     def ShortenPath(self, path, timeout=5.0):
         
