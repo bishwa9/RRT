@@ -67,9 +67,12 @@ class SimpleEnvironment(object):
         total_dist = self.ComputeDistance( start_config, end_config )
 
         pts_ = numpy.linspace(0, total_dist, num=50) # points expressed in local coordinate frame
+        xy_ = numpy.zeros((numpy.shape(pts_)[0], 2))
         num_ = 0
         for point in pts_:
-            xy = [point * numpy.cos(angle), point * numpy.sin(angle)]
+            xy = [start_config[0] + point * numpy.cos(angle), start_config[1] + point * numpy.sin(angle)]
+            xy_[num_,:] = xy
+            num_ += 1
             if( self.collision_pt( xy ) ):
                 return 'None'
         return end_config;
