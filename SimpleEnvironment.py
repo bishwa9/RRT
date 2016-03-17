@@ -104,10 +104,15 @@ class SimpleEnvironment(object):
         start_t = time.time()
         curr_path = path
         start_i = 0
-        iters = 20
+        iters = 20000
+        out = 0
         for iter_num in range(0,iters):
             start_i = 0
+            if out == 1:
+                break
             for i in range(start_i, len(curr_path)):
+                if out == 1:
+                    break
                 for j in range(len(curr_path)-1, i+1, -1):
                     if self.ComputeDistance(curr_path[i], curr_path[j]) > 0.8:
                         new_configs = self.Extend(curr_path[i], curr_path[j])
@@ -116,9 +121,10 @@ class SimpleEnvironment(object):
                             curr_path = numpy.append( numpy.append(curr_path[0:i+1], new_configs[1:], axis=0), curr_path[j:], axis=0)
                             start_i = start_i + 1
                             break
-                if(time.time() - start_t > timeout):
-                    iters = iter_num
-                    break
+                    if(time.time() - start_t > timeout):
+                        print 'Timeout'
+                        out = 1
+                        break
         print time.time() - start_t
         # Plot New shortened path
         self.InitializePlot(path[-1])

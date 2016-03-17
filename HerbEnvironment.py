@@ -100,17 +100,18 @@ class HerbEnvironment(object):
         out = 0
         iters = 20000
         for iter_num in range(0,iters):
+            start_i = 0
             if out == 1:
                 break
             for i in range(start_i, len(curr_path)):
                 if out == 1:
                     break
                 for j in range(len(curr_path)-1, i+1, -1):
-                    if self.ComputeDistance(curr_path[i], curr_path[j]) > 0.01:
+                    if self.ComputeDistance(curr_path[i], curr_path[j]) > 1:
                         new_configs = self.Extend(curr_path[i], curr_path[j])
                         if new_configs != None:
                             # print 'Connecting checking', i, 'to', j, 'as', new_configs
-                            curr_path = numpy.append( numpy.append(curr_path[0:i+1], new_configs[1:], axis=0), curr_path[j:], axis=0)
+                            curr_path = numpy.append( numpy.append(curr_path[0:i+1], new_configs[1::5], axis=0), curr_path[j:], axis=0)
                             start_i = start_i + 1
                             break
                     if(time.time() - start_t > timeout):
@@ -118,4 +119,5 @@ class HerbEnvironment(object):
                         out = 1
                         break
         print time.time() - start_t
+        print iters
         return curr_path
