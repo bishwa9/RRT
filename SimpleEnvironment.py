@@ -40,7 +40,6 @@ class SimpleEnvironment(object):
         # generate a number E [0,1]
         p_checker = numpy.random.random_sample()
         if p_checker < self.p:
-            print "hi"
             return self.goal_config
         while True:
             # generate two random points [0,1]

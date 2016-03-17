@@ -30,7 +30,7 @@ class HerbEnvironment(object):
         # ensure pt is not colliding with robot or table
         table = self.robot.GetEnv().GetKinBody('conference_table')
         with self.robot.GetEnv():
-            self.robot.SetDOFValues(dof_values, self.robot.GetActiveDOFIndices(), checklimits=False)
+            self.robot.SetDOFValues(dof_values, self.robot.GetActiveDOFIndices(), checklimits=True)
         return self.robot.GetEnv().CheckCollision(self.robot,table) or self.robot.GetEnv().CheckCollision(self.robot,self.robot)
 
     def SetGoalParameters(self, goal_config, p = 0.2):
