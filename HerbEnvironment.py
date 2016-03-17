@@ -72,16 +72,17 @@ class HerbEnvironment(object):
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a goal configuration
         #
+
         d = 0
         delta_d = 0.2
-        xy_ = []
-        while d < 1:
-            xy = numpy.subtract( (1-d)*start_config, d*end_config )
-            xy_ = numpy.vstack((xy_, xy))
+        xy_ = numpy.ones((1,len(self.robot.GetActiveDOFIndices())))
+        while d <= 1:
+            xy = [numpy.add( (1-d)*start_config, d*end_config )]
+            xy_ = numpy.append(xy_, xy, axis=0)
             d += delta_d
-            if( self.collision_pt( xy ) ):
+            if( self.collision_pt( xy[0] ) ):
                 return None
-        return xy_;
+        return xy_[1:,:];
         
     def ShortenPath(self, path, timeout=5.0):
         

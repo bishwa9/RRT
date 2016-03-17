@@ -24,12 +24,12 @@ class RRTPlanner(object):
             random_config = self.planning_env.GenerateRandomConfiguration()
             nearest_vid, nearest_vertex = tree.GetNearestVertex(random_config)
             new_configs = self.planning_env.Extend(nearest_vertex, random_config)
+            print new_configs
             if new_configs != None and new_configs != []:
                 for new_config in [new_configs[-1]]:
                     new_vid = tree.AddVertex(new_config)
                     tree.AddEdge(nearest_vid, new_vid)
-                    print nearest_vertex, new_config
-                    self.planning_env.PlotEdge(nearest_vertex, new_config)
+                    #self.planning_env.PlotEdge(nearest_vertex, new_config)
                     # d = self.planning_env.ComputeDistance(new_config, goal_config)
                     if numpy.array_equal(new_config, goal_config):
                         goalReached = True
