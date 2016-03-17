@@ -1,5 +1,6 @@
 import numpy
 import matplotlib.pyplot as pl
+import scipy.spatial
 
 class SimpleEnvironment(object):
     
@@ -53,7 +54,7 @@ class SimpleEnvironment(object):
         # TODO: Implement a function which computes the distance between
         # two configurations
         #
-        return numpy.sqrt((start_config[0] - end_config[0])**2 + (start_config[1] - end_config[1])**2)
+        return scipy.spatial.distance.euclidean(start_config, end_config)
 
     def Extend(self, start_config, end_config):
         #
@@ -62,14 +63,14 @@ class SimpleEnvironment(object):
         #
         d = 0
         delta_d = 0.2
-        xy_ = []
+        xy_ = numpy.ones((1,2))
         while d < 1:
-            xy = numpy.subtract( (1-d)*start_config, d*end_config )
-            xy_ = numpy.vstack((xy_, xy))
+            xy = [numpy.subtract( (1-d)*start_config, d*end_config )]
+            xy_ = numpy.append(xy_, xy, axis=0)
             d += delta_d
-            if( self.collision_pt( xy ) ):
+            if( self.collision_pt( xy[0] ) ):
                 return None
-        return xy_;
+        return xy_[1:,:];
 
         # walk with a quantized distance from start_config to end_config
         #diff = end_config - start_config

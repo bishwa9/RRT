@@ -28,7 +28,8 @@ class RRTPlanner(object):
                 for new_config in [new_configs[-1]]:
                     new_vid = tree.AddVertex(new_config)
                     tree.AddEdge(nearest_vid, new_vid)
-                    # self.planning_env.PlotEdge(nearest_vertex, new_config)
+                    print nearest_vertex, new_config
+                    self.planning_env.PlotEdge(nearest_vertex, new_config)
                     # d = self.planning_env.ComputeDistance(new_config, goal_config)
                     if numpy.array_equal(new_config, goal_config):
                         goalReached = True
