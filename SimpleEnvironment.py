@@ -65,7 +65,7 @@ class SimpleEnvironment(object):
         d = 0
         delta_d = 0.2
         xy_ = numpy.ones((1,2))
-        while d < 1:
+        while d <= 1:
             xy = [numpy.add( (1-d)*start_config, d*end_config )]
             xy_ = numpy.append(xy_, xy, axis=0)
             d += delta_d
