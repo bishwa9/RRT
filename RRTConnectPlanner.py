@@ -32,31 +32,33 @@ class RRTConnectPlanner(object):
 
             if f_new_configs != None:
                 f_last_vid = f_nearest_vid
-                for f_new_config in f_new_configs: #[new_configs[-1]]:
-                    f_new_vid = ftree.AddVertex(f_new_config)
-                    ftree.AddEdge(f_last_vid, f_new_vid)
-                    f_last_vid = f_new_vid
-                    # self.planning_env.PlotEdge(f_nearest_vertex, f_new_config)	#remove for herb 
-                    r_nearest2f_vid, r_nearest2f_vertex = rtree.GetNearestVertex(f_new_config)
-                    d = self.planning_env.ComputeDistance(f_new_config, r_nearest2f_vertex)
-                    if d < epsilon:
-                        goalReached = True
-                        f_closest_vid = f_new_vid
-                        r_closest_vid = r_nearest2f_vid
+                # for f_new_config in f_new_configs: #[new_configs[-1]]:
+                f_new_config = f_new_configs[-1]
+                f_new_vid = ftree.AddVertex(f_new_config)
+                ftree.AddEdge(f_last_vid, f_new_vid)
+                f_last_vid = f_new_vid
+                # self.planning_env.PlotEdge(f_nearest_vertex, f_new_config)	#remove for herb 
+                r_nearest2f_vid, r_nearest2f_vertex = rtree.GetNearestVertex(f_new_config)
+                d = self.planning_env.ComputeDistance(f_new_config, r_nearest2f_vertex)
+                if d < epsilon:
+                    goalReached = True
+                    f_closest_vid = f_new_vid
+                    r_closest_vid = r_nearest2f_vid
 
             if r_new_configs != None and goalReached != True:
                 r_last_vid = r_nearest_vid
-                for r_new_config in r_new_configs: #[new_configs[-1]]:
-                    r_new_vid = rtree.AddVertex(r_new_config)
-                    rtree.AddEdge(r_last_vid, r_new_vid)
-                    r_last_vid = r_new_vid
-                    # self.planning_env.PlotEdge(r_nearest_vertex, r_new_config)	#remove for herb 
-                    f_nearest2r_vid, f_nearest2r_vertex = ftree.GetNearestVertex(r_new_config)
-                    d = self.planning_env.ComputeDistance(r_new_config, f_nearest2r_vertex)
-                    if d < epsilon:
-                        goalReached = True
-                        f_closest_vid = f_nearest2r_vid
-                        r_closest_vid = r_new_vid
+                # for r_new_config in r_new_configs: #[new_configs[-1]]:
+                r_new_config = r_new_configs[-1]
+                r_new_vid = rtree.AddVertex(r_new_config)
+                rtree.AddEdge(r_last_vid, r_new_vid)
+                r_last_vid = r_new_vid
+                # self.planning_env.PlotEdge(r_nearest_vertex, r_new_config)	#remove for herb 
+                f_nearest2r_vid, f_nearest2r_vertex = ftree.GetNearestVertex(r_new_config)
+                d = self.planning_env.ComputeDistance(r_new_config, f_nearest2r_vertex)
+                if d < epsilon:
+                    goalReached = True
+                    f_closest_vid = f_nearest2r_vid
+                    r_closest_vid = r_new_vid
 
         curr_vid = f_closest_vid
         while curr_vid != ftree.GetRootId():
