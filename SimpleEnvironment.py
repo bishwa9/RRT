@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pyplot as pl
 import scipy.spatial
+import time
 
 class SimpleEnvironment(object):
     
@@ -62,7 +63,7 @@ class SimpleEnvironment(object):
         #   a start configuration to a target configuration
         #
         d = 0
-        delta_d = 0.2
+        delta_d = 0.1
         xy_ = numpy.ones((1,2))
         while d <= 1:
             xy = [numpy.add( (1-d)*start_config, d*end_config )]
@@ -100,7 +101,31 @@ class SimpleEnvironment(object):
         #  on the given path.  Terminate the shortening after the 
         #  given timout (in seconds).
         #
-        return path
+        start_t = time.time()
+        curr_path = path
+        start_i = 0
+        iters = 20
+        for iter_num in range(0,iters):
+            start_i = 0
+            for i in range(start_i, len(curr_path)):
+                for j in range(len(curr_path)-1, i+1, -1):
+                    if self.ComputeDistance(curr_path[i], curr_path[j]) > 0.8:
+                        new_configs = self.Extend(curr_path[i], curr_path[j])
+                        if new_configs != None and not numpy.array_equal(new_configs, numpy.array([0,0])):
+                            # print 'Connecting checking', i, 'to', j, 'as', new_configs
+                            curr_path = numpy.append( numpy.append(curr_path[0:i+1], new_configs[1:], axis=0), curr_path[j:], axis=0)
+                            start_i = start_i + 1
+                            break
+                if(time.time() - start_t > timeout):
+                    iters = iter_num
+                    break
+        print time.time() - start_t
+        # Plot New shortened path
+        self.InitializePlot(path[-1])
+        self.PlotEdge(curr_path[0], curr_path[1])
+        for i in range(1, len(curr_path)):
+            self.PlotEdge(curr_path[i-1], curr_path[i])
+        return curr_path
 
 
     def InitializePlot(self, goal_config):

@@ -1,5 +1,6 @@
 import numpy
 import scipy.spatial
+import time
 
 class HerbEnvironment(object):
     
@@ -74,10 +75,12 @@ class HerbEnvironment(object):
         #
 
         d = 0
-        delta_d = 0.2
+        delta_d = 0.05
         xy_ = numpy.ones((1,len(self.robot.GetActiveDOFIndices())))
         while d <= 1:
+            # print d
             xy = [numpy.add( (1-d)*start_config, d*end_config )]
+            # print d*end_config
             xy_ = numpy.append(xy_, xy, axis=0)
             d += delta_d
             if( self.collision_pt( xy[0] ) ):
@@ -91,4 +94,28 @@ class HerbEnvironment(object):
         #  on the given path.  Terminate the shortening after the 
         #  given timout (in seconds).
         #
-        return path
+        start_t = time.time()
+        curr_path = path
+        start_i = 0
+        out = 0
+        iters = 20000
+        for iter_num in range(0,iters):
+            if out == 1:
+                break
+            for i in range(start_i, len(curr_path)):
+                if out == 1:
+                    break
+                for j in range(len(curr_path)-1, i+1, -1):
+                    if self.ComputeDistance(curr_path[i], curr_path[j]) > 0.01:
+                        new_configs = self.Extend(curr_path[i], curr_path[j])
+                        if new_configs != None:
+                            # print 'Connecting checking', i, 'to', j, 'as', new_configs
+                            curr_path = numpy.append( numpy.append(curr_path[0:i+1], new_configs[1:], axis=0), curr_path[j:], axis=0)
+                            start_i = start_i + 1
+                            break
+                    if(time.time() - start_t > timeout):
+                        print 'Timeout'
+                        out = 1
+                        break
+        print time.time() - start_t
+        return curr_path

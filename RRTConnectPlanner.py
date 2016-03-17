@@ -30,10 +30,12 @@ class RRTConnectPlanner(object):
             f_new_configs = self.planning_env.Extend(f_nearest_vertex, f_random_config)
             r_new_configs = self.planning_env.Extend(r_nearest_vertex, r_random_config)
 
-            if f_new_configs != None and f_new_configs != []:
+            if f_new_configs != None:
+                f_last_vid = f_nearest_vid
                 for f_new_config in f_new_configs: #[new_configs[-1]]:
                     f_new_vid = ftree.AddVertex(f_new_config)
-                    ftree.AddEdge(f_nearest_vid, f_new_vid)
+                    ftree.AddEdge(f_last_vid, f_new_vid)
+                    f_last_vid = f_new_vid
                     # self.planning_env.PlotEdge(f_nearest_vertex, f_new_config)	#remove for herb 
                     r_nearest2f_vid, r_nearest2f_vertex = rtree.GetNearestVertex(f_new_config)
                     d = self.planning_env.ComputeDistance(f_new_config, r_nearest2f_vertex)
@@ -42,10 +44,12 @@ class RRTConnectPlanner(object):
                         f_closest_vid = f_new_vid
                         r_closest_vid = r_nearest2f_vid
 
-            if r_new_configs != None and r_new_configs != []:
+            if r_new_configs != None and goalReached != True:
+                r_last_vid = r_nearest_vid
                 for r_new_config in r_new_configs: #[new_configs[-1]]:
                     r_new_vid = rtree.AddVertex(r_new_config)
-                    rtree.AddEdge(r_nearest_vid, r_new_vid)
+                    rtree.AddEdge(r_last_vid, r_new_vid)
+                    r_last_vid = r_new_vid
                     # self.planning_env.PlotEdge(r_nearest_vertex, r_new_config)	#remove for herb 
                     f_nearest2r_vid, f_nearest2r_vertex = ftree.GetNearestVertex(r_new_config)
                     d = self.planning_env.ComputeDistance(r_new_config, f_nearest2r_vertex)
@@ -69,7 +73,7 @@ class RRTConnectPlanner(object):
         plan_temp.append(rtree.vertices[curr_vid])
         plan.extend(plan_temp)
         
-        print plan
+        # print plan
         #plan.append(start_config)
         #plan.append(goal_config)
         return plan

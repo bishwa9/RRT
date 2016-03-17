@@ -18,22 +18,26 @@ class RRTPlanner(object):
         #  The return path should be an array
         #  of dimension k x n where k is the number of waypoints
         #  and n is the dimension of the robots configuration space
+        # TODO Check for direct Extend
         self.planning_env.SetGoalParameters(goal_config, 0.2)
         goalReached = False
         while goalReached == False:
             random_config = self.planning_env.GenerateRandomConfiguration()
             nearest_vid, nearest_vertex = tree.GetNearestVertex(random_config)
             new_configs = self.planning_env.Extend(nearest_vertex, random_config)
-            print new_configs
+            # print new_configs
             if new_configs != None and new_configs != []:
-                for new_config in [new_configs[-1]]:
-                    new_vid = tree.AddVertex(new_config)
-                    tree.AddEdge(nearest_vid, new_vid)
-                    #self.planning_env.PlotEdge(nearest_vertex, new_config)
-                    # d = self.planning_env.ComputeDistance(new_config, goal_config)
-                    if numpy.array_equal(new_config, goal_config):
-                        goalReached = True
-                        goal_vid = new_vid
+                last_vid = nearest_vid
+                # for new_config in new_configs: #[new_configs[-1]]:
+                new_config = new_configs[-1]
+                new_vid = tree.AddVertex(new_config)
+                tree.AddEdge(last_vid, new_vid)
+                last_vid = new_vid
+                # self.planning_env.PlotEdge(nearest_vertex, new_config)
+                d = self.planning_env.ComputeDistance(new_config, goal_config)
+                if d < epsilon:
+                    goalReached = True
+                    goal_vid = new_vid
         curr_vid = goal_vid
         while curr_vid != tree.GetRootId():
             plan.append(tree.vertices[curr_vid])
@@ -42,5 +46,5 @@ class RRTPlanner(object):
         plan.reverse()
         # plan.append(start_config)
         # plan.append(goal_config)
-        print plan
+        # print plan
         return plan
