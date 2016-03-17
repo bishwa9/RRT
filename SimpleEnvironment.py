@@ -60,26 +60,37 @@ class SimpleEnvironment(object):
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a target configuration
         #
+        d = 0
+        delta_d = 0.2
+        xy_ = []
+        while d < 1:
+            xy = numpy.subtract( (1-d)*start_config, d*end_config )
+            xy_ = numpy.vstack((xy_, xy))
+            d += delta_d
+            if( self.collision_pt( xy ) ):
+                return None
+        return xy_;
+
         # walk with a quantized distance from start_config to end_config
-        diff = end_config - start_config
-        angle = numpy.arctan2(diff[1], diff[0]) # radians
+        #diff = end_config - start_config
+        #angle = numpy.arctan2(diff[1], diff[0]) # radians
         # dir_ = numpy.sign(diff)
         # if( set(dir_) == set( [0., 0.] ) ):
         #     return None # start = goal
 
-        uniform_dist = 0.1
-        total_dist = self.ComputeDistance( start_config, end_config )
+        #uniform_dist = 0.1
+        #total_dist = self.ComputeDistance( start_config, end_config )
 
-        pts_ = numpy.linspace(0, total_dist, num=10) # points expressed in local coordinate frame
-        xy_ = numpy.zeros((numpy.shape(pts_)[0], 2))
-        num_ = 0
-        for point in pts_:
-            xy = numpy.add(start_config, numpy.array([point * numpy.cos(angle), point * numpy.sin(angle)]))
-            xy_[num_,:] = xy
-            num_ += 1
-            if( self.collision_pt( xy ) ):
-                return None
-        return xy_;
+        #pts_ = numpy.linspace(0, total_dist, num=10) # points expressed in local coordinate frame
+        #xy_ = numpy.zeros((numpy.shape(pts_)[0], 2))
+        #num_ = 0
+        #for point in pts_:
+        #    xy = numpy.add(start_config, numpy.array([point * numpy.cos(angle), point * numpy.sin(angle)]))
+        #    xy_[num_,:] = xy
+        #    num_ += 1
+        #    if( self.collision_pt( xy ) ):
+        #        return None
+        #return xy_;
 
     def ShortenPath(self, path, timeout=5.0):
         

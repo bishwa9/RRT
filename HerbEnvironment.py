@@ -26,6 +26,13 @@ class HerbEnvironment(object):
         # goal sampling probability
         self.p = 0.0
 
+    def collision_pt(self, dof_values):
+        # ensure pt is not colliding with robot or table
+        table = self.robot.GetEnv().GetKinBody('conference_table')
+        with self.robot.GetEnv():
+            self.robot.SetDOFValues(dof_values, self.robot.GetActiveDOFIndices(), checklimits=False)
+        return self.robot.GetEnv().CheckCollision(self.robot,table) or self.robot.GetEnv().CheckCollision(self.robot,self.robot)
+
     def SetGoalParameters(self, goal_config, p = 0.2):
         self.goal_config = goal_config
         self.p = p
@@ -37,8 +44,17 @@ class HerbEnvironment(object):
         #
         # TODO: Generate and return a random configuration
         #
+        lower_limits, upper_limits = self.robot.GetActiveDOFLimits()
+        p_checker = numpy.random.random_sample()
+        if p_checker < self.p:
+            return self.goal_config
+        while True:
+            config = [numpy.random.uniform(lower_limits[i], upper_limits[i], 1)[0] for i in range(len(config))]
+            # for i in range(config):
+            #     config[i] = numpy.random.uniform(lower_limits[i], upper_limits[i], 1)[0]
+            if self.collision_pt(config) == False:
+                break;
         return numpy.array(config)
-
 
     
     def ComputeDistance(self, start_config, end_config):
@@ -56,12 +72,13 @@ class HerbEnvironment(object):
         # TODO: Implement a function which attempts to extend from 
         #   a start configuration to a goal configuration
         #
-        d_ = numpy.linspace(0, 1, num=10)
-        xy_ = numpy.zeros((numpy.shape(d)[0], 2))
-        for d in d_:
+        d = 0
+        delta_d = 0.2
+        xy_ = []
+        while d < 1:
             xy = numpy.subtract( (1-d)*start_config, d*end_config )
-            xy_[num_,:] = xy
-            num_ += 1
+            xy_ = numpy.vstack((xy_, xy))
+            d += delta_d
             if( self.collision_pt( xy ) ):
                 return None
         return xy_;
