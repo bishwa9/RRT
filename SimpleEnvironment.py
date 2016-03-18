@@ -26,6 +26,16 @@ class SimpleEnvironment(object):
         self.goal_config = goal_config
         self.p = p
 
+    def comp_totDist(self, path):
+        tot_dist = 0
+        num_ = len(path)
+        for i in range(num_-1):
+            tot_dist += self.ComputeDistance(path[i], path[i+1])
+        return tot_dist
+
+    def comp_totVertices(self, tree):
+        return len(tree.vertices)
+
     def collision_pt(self, pt):
         # ensure robot at pt is not colliding with table
         table = self.robot.GetEnv().GetKinBody('conference_table')
@@ -94,7 +104,7 @@ class SimpleEnvironment(object):
         #        return None
         #return xy_;
 
-    def ShortenPath(self, path, timeout=5.0):
+    def ShortenPath(self, path, visualize, robot, timeout=5.0):
         
         # 
         # TODO: Implement a function which performs path shortening
@@ -104,7 +114,7 @@ class SimpleEnvironment(object):
         start_t = time.time()
         curr_path = path
         start_i = 0
-        iters = 20000
+        iters = 2000
         out = 0
         for iter_num in range(0,iters):
             start_i = 0
@@ -125,13 +135,17 @@ class SimpleEnvironment(object):
                         print 'Timeout'
                         out = 1
                         break
-        print time.time() - start_t
+        shortening_time =  time.time() - start_t
+        shortened_dist = self.comp_totDist(curr_path)
         # Plot New shortened path
-        self.InitializePlot(path[-1])
-        self.PlotEdge(curr_path[0], curr_path[1])
-        for i in range(1, len(curr_path)):
-            self.PlotEdge(curr_path[i-1], curr_path[i])
-        return curr_path
+        if visualize == True:
+            traj = robot.ConvertPlanToTrajectory(curr_path)
+            robot.ExecuteTrajectory(traj)
+            self.InitializePlot(path[-1])
+            self.PlotEdge(curr_path[0], curr_path[1])
+            for i in range(1, len(curr_path)):
+                self.PlotEdge(curr_path[i-1], curr_path[i])
+        return curr_path, shortening_time, shortened_dist
 
 
     def InitializePlot(self, goal_config):

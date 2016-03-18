@@ -1,13 +1,15 @@
-import numpy, operator
+import numpy, operator, time
 from RRTPlanner import RRTTree
 
 class RRTConnectPlanner(object):
 
-    def __init__(self, planning_env, visualize):
+    def __init__(self, planning_env, robot, visualize):
+        self.robot = robot
         self.planning_env = planning_env
         self.visualize = visualize
 
     def Plan(self, start_config, goal_config, epsilon = 0.001):
+        start_time = time.time()
     	# epsilon = 0.2 # remove if using herb
         ftree = RRTTree(self.planning_env, start_config)
         rtree = RRTTree(self.planning_env, goal_config)
@@ -37,7 +39,7 @@ class RRTConnectPlanner(object):
                 f_new_vid = ftree.AddVertex(f_new_config)
                 ftree.AddEdge(f_last_vid, f_new_vid)
                 f_last_vid = f_new_vid
-                # self.planning_env.PlotEdge(f_nearest_vertex, f_new_config)	#remove for herb 
+                #self.planning_env.PlotEdge(f_nearest_vertex, f_new_config)	#remove for herb 
                 r_nearest2f_vid, r_nearest2f_vertex = rtree.GetNearestVertex(f_new_config)
                 d = self.planning_env.ComputeDistance(f_new_config, r_nearest2f_vertex)
                 if d < epsilon:
@@ -52,7 +54,7 @@ class RRTConnectPlanner(object):
                 r_new_vid = rtree.AddVertex(r_new_config)
                 rtree.AddEdge(r_last_vid, r_new_vid)
                 r_last_vid = r_new_vid
-                # self.planning_env.PlotEdge(r_nearest_vertex, r_new_config)	#remove for herb 
+                #self.planning_env.PlotEdge(r_nearest_vertex, r_new_config)	#remove for herb 
                 f_nearest2r_vid, f_nearest2r_vertex = ftree.GetNearestVertex(r_new_config)
                 d = self.planning_env.ComputeDistance(r_new_config, f_nearest2r_vertex)
                 if d < epsilon:
@@ -75,7 +77,14 @@ class RRTConnectPlanner(object):
         plan_temp.append(rtree.vertices[curr_vid])
         plan.extend(plan_temp)
         
+        tot_dist = self.planning_env.comp_totDist(plan)
+        num_vertices = self.planning_env.comp_totVertices(ftree) + self.planning_env.comp_totVertices(rtree)
+        planning_time = time.time() - start_time
+
+        if self.visualize == True:
+            traj = self.robot.ConvertPlanToTrajectory(plan)
+            self.robot.ExecuteTrajectory(traj)
         # print plan
         #plan.append(start_config)
         #plan.append(goal_config)
-        return plan
+        return plan, tot_dist, num_vertices, planning_time

@@ -1,19 +1,20 @@
 import numpy
+import time
 from RRTTree import RRTTree
 
 class RRTPlanner(object):
 
-    def __init__(self, planning_env, visualize):
+    def __init__(self, planning_env, robot, visualize):
+        self.robot = robot
         self.planning_env = planning_env
         self.visualize = visualize
-        
 
     def Plan(self, start_config, goal_config, epsilon = 0.001):
-        
+        start_time = time.time()
         tree = RRTTree(self.planning_env, start_config)
         plan = []
-        if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
-            self.planning_env.InitializePlot(goal_config)
+        #if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+        #    self.planning_env.InitializePlot(goal_config)
         # TODO: Here you will implement the rrt planner
         #  The return path should be an array
         #  of dimension k x n where k is the number of waypoints
@@ -44,7 +45,15 @@ class RRTPlanner(object):
             curr_vid = tree.edges[curr_vid]
         plan.append(tree.vertices[curr_vid])
         plan.reverse()
+        tot_dist = self.planning_env.comp_totDist(plan)
+        num_vertices = self.planning_env.comp_totVertices(tree)
+        planning_time = time.time() - start_time
+
+        if self.visualize == True:
+            traj = self.robot.ConvertPlanToTrajectory(plan)
+            self.robot.ExecuteTrajectory(traj)
+
         # plan.append(start_config)
         # plan.append(goal_config)
         # print plan
-        return plan
+        return plan, tot_dist, num_vertices, planning_time

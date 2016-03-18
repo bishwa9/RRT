@@ -38,6 +38,15 @@ class HerbEnvironment(object):
         self.goal_config = goal_config
         self.p = p
         
+    def comp_totDist(self, path):
+        tot_dist = 0
+        num_ = len(path)
+        for i in range(num_-1):
+            tot_dist += self.ComputeDistance(path[i], path[i+1])
+        return tot_dist
+
+    def comp_totVertices(self, tree):
+        return len(tree.vertices)
 
     def GenerateRandomConfiguration(self):
         config = [0] * len(self.robot.GetActiveDOFIndices())
@@ -87,7 +96,7 @@ class HerbEnvironment(object):
                 return None
         return xy_[1:,:];
         
-    def ShortenPath(self, path, timeout=5.0):
+    def ShortenPath(self, path, visualize, robot, timeout=5.0):
         
         # 
         # TODO: Implement a function which performs path shortening
@@ -118,6 +127,9 @@ class HerbEnvironment(object):
                         print 'Timeout'
                         out = 1
                         break
-        print time.time() - start_t
-        print iters
-        return curr_path
+        shortening_time = time.time() - start_t
+        shortened_dist = self.comp_totDist(curr_path)
+        if visualize == True:
+            traj = robot.ConvertPlanToTrajectory(curr_path)
+            robot.ExecuteTrajectory(traj)
+        return curr_path, shortening_time, shortened_dist
